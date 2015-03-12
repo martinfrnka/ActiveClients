@@ -1,0 +1,54 @@
+/* CSS Document */
+#active,#pc-on {
+  color:#0b0;
+  
+}
+
+#passive,#pc-off,#time, #timeGenerated {
+  color:#779FC0;
+}
+
+body {
+background: #333333;
+}
+
+th {
+  color:#aaf;
+  text-align: left;
+}
+
+#even-row {
+  background:#151515;
+}
+
+#odd-row {
+  background:#101020;
+}
+
+#pc-total {
+color:white;
+}
+
+
+#users {
+color:yellow;
+}
+
+#timeElapsedProblem {
+color:red;
+font-size:200%;
+}
+
+#timeElapsedWarning {
+color:yellow;
+font-size:150%;
+}
+
+#timeElapsedOK {
+color:green;
+font-size:140%;
+}
+
+
+
+
