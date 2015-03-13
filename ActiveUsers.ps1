@@ -202,44 +202,49 @@ while ($true)
     #zajimaji nas pouze nazvy PC, jejichz ucty nejsou v AD Disabled
     $computers = Get-ADComputer -Filter * | ?{-not $_.Enabled -like 'f*'} | select name | %{$_.name} | sort
 
-    #Write-Host "Pocetr PC: $($computers.count)"
+    #Z poctu PC a poctu jobu odvodime pocet PC v jednom jobu
     $computersInBatch = [Math]::Ceiling($computers.Count / $batchCnt)
 
-    #priprava pole pro vysledky
+    #priprava pole pro vysledky (pocet prvku musi odpovidat poctu testovanych PC)
     $computerState = @($false) * $computers.Count
     $userState = @("") * $computers.Count
+
+    #pole, ve kterem budeme drzet reference na jednotlive joby bezici paralelne na pozadi
     $jobs = @("") * $batchCnt
 
 
-    #invokace jobu
+    #invokace jobu - spusti se zvoleny pocet paralelnich jobu na pozadi
+    #kazdy z nich otestuje svou cast pocitacu
     for ($i = 0; $i -lt $batchCnt;$i++) 
     {
-   
-        #Write-Host $name ": " -NoNewline
-        #Write-Host (Invoke-Command -ScriptBlock $scriptblock -ArgumentList $name)
-        #Set-Variable "ping$i" -Value {Invoke-Command -ScriptBlock $scriptblock -ArgumentList $computers[$i] -AsJob}
+        #ze seznamu PC vezmeme cast nazvu PC pro jeden job 
         $names = $computers[($i*$computersInBatch) .. (($i+1)*$computersInBatch-1)]
-        #$names
+        
+        #spustime job na pozadi - provede otestovani vybrane casti pocitacu
         $jobs[$i] = Start-Job -name "ping$i" -ScriptBlock $scriptblock -ArgumentList (,$names) 
-        #Write-Host "Job ping$i pro pocitace $names spusten"   
-    
-
     }
 
-    #Write-Host "cekam na provedeni procesu"
+    #pockame, az vsechny spustene joby dokonci svou praci
     Wait-Job -Name "ping*"
-    #Write-Host "Procesy dokonceny"
+    
 
-    #stahni vysledky a odstran joby
+    #Ze vsech dokoncenych jobu stahneme vysledky a joby odstranime
     $computerState = $null
+
+    #prochazime jednotlive joby
     for ($i = 0; $i -lt $batchCnt; $i++)
     { 
+        #stahneme vysledek jobu
         $result = Receive-Job -Name "ping$i"
+        #pridame vysledek jobu do pole s vysledky
         $computerState += $result
+        #odstranime job
         Remove-Job -Name "ping$i"    
     }
 
-    Clear-Host
+    
+    #Clear-Host
+    
     Write-Host ("-"*119) 
 
     [int32]$colCnt = 4;
