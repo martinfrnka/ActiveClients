@@ -6,7 +6,7 @@ $batchCnt = 20
 
 #nazev domeny, ktery se ma odstranit z prihlaseneho uzivatele
 #napr. z NSZBRN\mfrnka se odstrani NSZBRN\
-    #nutno upravit v tele scriptBlock, na radku 181
+    #nutno upravit v tele scriptBlock, na radku 201
 
 #pomocna funkce pro barevny vypis na konzoli
 function Write-Host-Color([String]$Text, [ConsoleColor]$Color) {
@@ -207,7 +207,6 @@ $scriptblock = {
             #pocitac neodpovida, zapiseme do vysledku jako neaktivni
             $results[$i] = @($name,$false,"")
         }
-        Write-Host $name
     }
 
     #vratime vysledky
@@ -281,71 +280,30 @@ while ($true)
     $PC_OFF = 0
     $User_logged = 0
 
-    
-    for ($row = 0; $row -lt $rowCnt; $row++)
-    { 
-        for ($col = 0; $col -lt $colCnt; $col++)
-        { 
-            $idx = ($col * $rowCnt) + $row
-            if ($idx -ge $computerState.Count) 
-            { 
-                Write-Host (" "*28) -NoNewline
-                whc "| " blue
-            if ($col -eq $colCnt-1) 
+    for ($idx=0; $idx -lt $computerState.Count; $idx++)
+    {
+        #TODO: zacisteni username stringu - je nutne?
+        if ($computerState[$idx][2] -eq $null) {
+            $computerState[$idx][2] = "null";
+        }
+
+        #pocitadla uzivatelu, a spustenych PC
+        if ($computerState[$idx][1] -eq $true)
+        {
+            $PC_ON++
+            if (-not [string]::Equals($computerState[$idx][2].ToString(), "-----"))
             {
-                Write-Host ""
+                $User_logged++
             }
-
-                continue 
-            }
-
-            if ($computerState[$idx][2] -eq $null) {
-                $computerState[$idx][2] = "null";
-            }
-
-            if ($computerState[$idx][1] -eq $true)
-            {
-                $PC_ON++
-                [string]$resultString = [string]::Format("{0,-14}{1,-14}",$computerState[$idx][0], " "+$computerState[$idx][2])
-                whc $resultString green
-
-                if (-not [string]::Equals($computerState[$idx][2].ToString(), "-----"))
-                {
-                    $User_logged++
-                }
-
-            }
-            else
-            {
-                $PC_OFF++
-                [string]$resultString = [string]::Format("{0,-28}",$computerState[$idx][0])
-                whc $resultString gray
-                if (-not ($i%4 -eq 3)) {whc "| " blue}
-            }
-
-        
-    
-            if ($col -ne $colCnt-1) 
-            {
-                whc "| " blue
-            }
-            else
-            {
-                whc "|" blue
-                Write-Host ""
-            }
-
-
-    
+        }
+        else
+        {
+            $PC_OFF++
         }
     }
     
     $PC_Total = $PC_ON + $PC_OFF
  
-    Write-Host ("`n" + "-"*119) 
-
-    Write-Host ""
-    Write-Host ""
     whc ("="*30) white
     Write-Host ""
     whc "PC Celkem:              $PC_Total`n" white
@@ -355,13 +313,12 @@ while ($true)
     whc ("="*30) white
     Write-Host ""
 
-
     $stop = Get-Date
     $stop -= $start
     $time = $stop.Second
     whc "Cas zpracovani: $stop " gray
+    Write-Host ""
     
-
     Export-Html-Data "E:\Temp\ActiveUsers4.html" 4;
     Export-Html-Data "E:\Temp\ActiveUsers5.html" 5;
     Export-Html-Data "E:\Temp\ActiveUsers.html" 6;
@@ -369,7 +326,7 @@ while ($true)
     Export-Html-Data "E:\Temp\ActiveUsers8.html" 8;
 
     $command = "C:\pracovni\winscp\WinSCP.com /script=C:\pracovni\winscp\sendfile.txt"
-    iex $command
+    #iex $command
 
     Write-Host "`n"
     Write-Host "                <                    >`r" -NoNewline
