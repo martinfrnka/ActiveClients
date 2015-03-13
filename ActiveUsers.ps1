@@ -193,9 +193,15 @@ $scriptblock = {
 #nekonecny cyklus
 while ($true)
 {
+    Write-Host "`rZjistuji informace o spustenych pocitacich, cca 50sekund...             ";
+    
+    #poznamename si cas zacatku
     $start = Get-Date
 
+    #zjistime seznam pocitacu z AD
+    #zajimaji nas pouze nazvy PC, jejichz ucty nejsou v AD Disabled
     $computer = Get-ADComputer -Filter * | ?{-not $_.Enabled -like 'f*'} | select name | %{$_.name} | sort
+
     #Write-Host "Pocetr PC: $($computer.count)"
     $computersInBatch = [Math]::Ceiling($computer.Count / $batchCnt)
 
@@ -341,7 +347,6 @@ while ($true)
         
     }
     
-    Write-Host "`rObnova dat, cca 50sekund...             ";
 
 
 }
