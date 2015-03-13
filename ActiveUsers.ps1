@@ -200,14 +200,14 @@ while ($true)
 
     #zjistime seznam pocitacu z AD
     #zajimaji nas pouze nazvy PC, jejichz ucty nejsou v AD Disabled
-    $computer = Get-ADComputer -Filter * | ?{-not $_.Enabled -like 'f*'} | select name | %{$_.name} | sort
+    $computers = Get-ADComputer -Filter * | ?{-not $_.Enabled -like 'f*'} | select name | %{$_.name} | sort
 
-    #Write-Host "Pocetr PC: $($computer.count)"
-    $computersInBatch = [Math]::Ceiling($computer.Count / $batchCnt)
+    #Write-Host "Pocetr PC: $($computers.count)"
+    $computersInBatch = [Math]::Ceiling($computers.Count / $batchCnt)
 
     #priprava pole pro vysledky
-    $computerState = @($false) * $computer.Count
-    $userState = @("") * $computer.Count
+    $computerState = @($false) * $computers.Count
+    $userState = @("") * $computers.Count
     $jobs = @("") * $batchCnt
 
 
@@ -217,8 +217,8 @@ while ($true)
    
         #Write-Host $name ": " -NoNewline
         #Write-Host (Invoke-Command -ScriptBlock $scriptblock -ArgumentList $name)
-        #Set-Variable "ping$i" -Value {Invoke-Command -ScriptBlock $scriptblock -ArgumentList $computer[$i] -AsJob}
-        $names = $computer[($i*$computersInBatch) .. (($i+1)*$computersInBatch-1)]
+        #Set-Variable "ping$i" -Value {Invoke-Command -ScriptBlock $scriptblock -ArgumentList $computers[$i] -AsJob}
+        $names = $computers[($i*$computersInBatch) .. (($i+1)*$computersInBatch-1)]
         #$names
         $jobs[$i] = Start-Job -name "ping$i" -ScriptBlock $scriptblock -ArgumentList (,$names) 
         #Write-Host "Job ping$i pro pocitace $names spusten"   
