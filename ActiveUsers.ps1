@@ -6,7 +6,8 @@ $batchCnt = 20
 
 #nazev domeny, ktery se ma odstranit z prihlaseneho uzivatele
 #napr. z NSZBRN\mfrnka se odstrani NSZBRN\
-$domain = "NSZBRN\"
+$domain = [Regex]::Escape('NSZBRN\')
+$domain = 'NSZBRN\\'
 
 #pomocna funkce pro barevny vypis na konzoli
 function Write-Host-Color([String]$Text, [ConsoleColor]$Color) {
@@ -166,13 +167,19 @@ $scriptblock = {
         {
             #pokud je ping OK, pak se pres WMI pokusime ziskat prihlaseneho uzivatele 
             [string]$user = [string](Get-WMIObject -class Win32_ComputerSystem -ComputerName "$($name)").UserName
-            if (($user -ne $null) ) 
+
+            if (($user -eq $null) ) 
             {
-                #poznamename si informaci o uzivateli
-                $user = $user.ToString().Replace($domain,"")
-                if ($user.ToString().Length -eq 0) { $user = "-----" }
+                $user = ""
             }
 
+            #poznamename si informaci o uzivateli
+            if ($user.ToString().Length -eq 0) 
+            { 
+                $user = "-----" 
+            }
+
+            $user = $user -replace 'NSZBRN\\',''
             #do vysledku zapiseme zjistene veci o spustenem PC
             $results[$i] = @($name,$true,$user)
         }
@@ -245,8 +252,6 @@ while ($true)
     
     #Clear-Host
     
-    Write-Host ("-"*119) 
-
     [int32]$colCnt = 4;
     [int32]$rowCnt = [Math]::Ceiling($computerState.Count/$colCnt) 
 
@@ -254,6 +259,7 @@ while ($true)
     $PC_OFF = 0
     $User_logged = 0
 
+    
     for ($row = 0; $row -lt $rowCnt; $row++)
     { 
         for ($col = 0; $col -lt $colCnt; $col++)
@@ -261,11 +267,11 @@ while ($true)
             $idx = ($col * $rowCnt) + $row
             if ($idx -ge $computerState.Count) 
             { 
-                Write-Host (" "*28) -NoNewline
-                whc "| " blue
+                #Write-Host (" "*28) -NoNewline
+                #whc "| " blue
             if ($col -eq $colCnt-1) 
             {
-                Write-Host ""
+                #Write-Host ""
             }
 
                 continue 
@@ -278,8 +284,8 @@ while ($true)
             if ($computerState[$idx][1] -eq $true)
             {
                 $PC_ON++
-                [string]$resultString = [string]::Format("{0,-14}{1,-14}",$computerState[$idx][0], " "+$computerState[$idx][2])
-                whc $resultString green
+                #[string]$resultString = [string]::Format("{0,-14}{1,-14}",$computerState[$idx][0], " "+$computerState[$idx][2])
+                #whc $resultString green
 
                 if (-not [string]::Equals($computerState[$idx][2].ToString(), "-----"))
                 {
@@ -290,8 +296,8 @@ while ($true)
             else
             {
                 $PC_OFF++
-                [string]$resultString = [string]::Format("{0,-28}",$computerState[$idx][0])
-                whc $resultString gray
+                #[string]$resultString = [string]::Format("{0,-28}",$computerState[$idx][0])
+                #whc $resultString gray
                 #if (-not ($i%4 -eq 3)) {whc "| " blue}
             }
 
@@ -299,24 +305,25 @@ while ($true)
     
             if ($col -ne $colCnt-1) 
             {
-                whc "| " blue
+                #whc "| " blue
             }
             else
             {
-                whc "|" blue
-                Write-Host ""
+                #whc "|" blue
+                #Write-Host ""
             }
 
 
     
         }
     }
+    
     $PC_Total = $PC_ON + $PC_OFF
  
-    Write-Host ("`n" + "-"*119) 
+    #Write-Host ("`n" + "-"*119) 
 
-    Write-Host ""
-    Write-Host ""
+    #Write-Host ""
+    #Write-Host ""
     whc ("="*30) white
     Write-Host ""
     whc "PC Celkem:              $PC_Total`n" white
