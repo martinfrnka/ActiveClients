@@ -6,8 +6,7 @@ $batchCnt = 20
 
 #nazev domeny, ktery se ma odstranit z prihlaseneho uzivatele
 #napr. z NSZBRN\mfrnka se odstrani NSZBRN\
-$domain = [Regex]::Escape('NSZBRN\')
-$domain = 'NSZBRN\\'
+    #nutno upravit v tele scriptBlock, na radku 181
 
 #pomocna funkce pro barevny vypis na konzoli
 function Write-Host-Color([String]$Text, [ConsoleColor]$Color) {
@@ -161,12 +160,32 @@ $scriptblock = {
     { 
         #vezmeme jmeno pocitace
         $name = $computerNames[$i]
-
+        
         #testujeme ping
-        if ((Test-Connection -ComputerName "$name" -Count 1 -Size 1 -Quiet))
+        Try 
+        {
+            $res = (Test-Connection -ComputerName "$name" -Count 1 -Size 1 -Quiet)
+        }
+        catch 
+        {
+            Write-Host "Error on test-ping"
+        }
+         
+        if ($res)
         {
             #pokud je ping OK, pak se pres WMI pokusime ziskat prihlaseneho uzivatele 
-            [string]$user = [string](Get-WMIObject -class Win32_ComputerSystem -ComputerName "$($name)").UserName
+            Try 
+            {
+                [string]$user = [string](Get-WMIObject -class Win32_ComputerSystem -ComputerName "$($name)").UserName
+            }
+            Catch [UnauthorizedAccessException]
+            {
+                $user = '__Unauthorised'
+            }
+            Catch 
+            {
+                $user = '__Unknown'
+            }
 
             if (($user -eq $null) ) 
             {
@@ -188,6 +207,7 @@ $scriptblock = {
             #pocitac neodpovida, zapiseme do vysledku jako neaktivni
             $results[$i] = @($name,$false,"")
         }
+        Write-Host $name
     }
 
     #vratime vysledky
@@ -243,8 +263,10 @@ while ($true)
     { 
         #stahneme vysledek jobu
         $result = Receive-Job -Name "ping$i"
+        
         #pridame vysledek jobu do pole s vysledky
         $computerState += $result
+        
         #odstranime job
         Remove-Job -Name "ping$i"    
     }
@@ -267,11 +289,11 @@ while ($true)
             $idx = ($col * $rowCnt) + $row
             if ($idx -ge $computerState.Count) 
             { 
-                #Write-Host (" "*28) -NoNewline
-                #whc "| " blue
+                Write-Host (" "*28) -NoNewline
+                whc "| " blue
             if ($col -eq $colCnt-1) 
             {
-                #Write-Host ""
+                Write-Host ""
             }
 
                 continue 
@@ -284,8 +306,8 @@ while ($true)
             if ($computerState[$idx][1] -eq $true)
             {
                 $PC_ON++
-                #[string]$resultString = [string]::Format("{0,-14}{1,-14}",$computerState[$idx][0], " "+$computerState[$idx][2])
-                #whc $resultString green
+                [string]$resultString = [string]::Format("{0,-14}{1,-14}",$computerState[$idx][0], " "+$computerState[$idx][2])
+                whc $resultString green
 
                 if (-not [string]::Equals($computerState[$idx][2].ToString(), "-----"))
                 {
@@ -296,21 +318,21 @@ while ($true)
             else
             {
                 $PC_OFF++
-                #[string]$resultString = [string]::Format("{0,-28}",$computerState[$idx][0])
-                #whc $resultString gray
-                #if (-not ($i%4 -eq 3)) {whc "| " blue}
+                [string]$resultString = [string]::Format("{0,-28}",$computerState[$idx][0])
+                whc $resultString gray
+                if (-not ($i%4 -eq 3)) {whc "| " blue}
             }
 
         
     
             if ($col -ne $colCnt-1) 
             {
-                #whc "| " blue
+                whc "| " blue
             }
             else
             {
-                #whc "|" blue
-                #Write-Host ""
+                whc "|" blue
+                Write-Host ""
             }
 
 
@@ -320,10 +342,10 @@ while ($true)
     
     $PC_Total = $PC_ON + $PC_OFF
  
-    #Write-Host ("`n" + "-"*119) 
+    Write-Host ("`n" + "-"*119) 
 
-    #Write-Host ""
-    #Write-Host ""
+    Write-Host ""
+    Write-Host ""
     whc ("="*30) white
     Write-Host ""
     whc "PC Celkem:              $PC_Total`n" white
