@@ -4,6 +4,9 @@
 #20 jobu pro cca 150 PC, probehne za cca 50s
 $batchCnt = 20
 
+#nazev domeny, ktery se ma odstranit z prihlaseneho uzivatele
+#napr. z NSZBRN\mfrnka se odstrani NSZBRN\
+$domain = "NSZBRN\"
 
 #pomocna funkce pro barevny vypis na konzoli
 function Write-Host-Color([String]$Text, [ConsoleColor]$Color) {
@@ -131,8 +134,17 @@ function Export-Html-Data($filename, $columns) {
 
 }
 
-
-#ping na pocitac $computername
+#scriptblock obsahuje skript, ktery je spousten v ramci jednotlivych jobu
+#Vstupni parametr $computerNames obsahuje seznam pocitacu k otestovani
+#Provadi nasledujici:
+#    ping na pocitac $name vybrany z $computernames a zaznamenani vysledku
+#    pokud pocitac odpovida, provede WMI dotaz na uzivatele a vysledek se zaznamena do pole $results
+#Vraci pole $results, ve kterem je pro kazdy testovany pocitac zaznam o trech polozkach - nazev, stav, uzivatel
+#    stav je true nebo false, (true = dostupny, false = nedostupny)
+#    uzivatel obsahuje
+#        - username
+#        - '-----' v pripade ze je PC zapnuty a neni na nem nikdo prihlasen
+#        - '' v pripade vypnuteho pocitace
 $scriptblock = { 
     param (
         [string[]] $computerNames
@@ -140,30 +152,43 @@ $scriptblock = {
     #Write-Host "scriptblock pro: $computerNames"
     #Write-Host $computerNames.Count
 
+    #priprava pole pro vysledky
     $results = @("")*$computerNames.Count
+
+    #cyklus pres vsechny jmena pocitacu ze vstupu
     for ($i = 0; $i -lt $computerNames.Count; $i++)
     { 
+        #vezmeme jmeno pocitace
         $name = $computerNames[$i]
+
+        #testujeme ping
         if ((Test-Connection -ComputerName "$name" -Count 1 -Size 1 -Quiet))
-        { 
+        {
+            #pokud je ping OK, pak se pres WMI pokusime ziskat prihlaseneho uzivatele 
             [string]$user = [string](Get-WMIObject -class Win32_ComputerSystem -ComputerName "$($name)").UserName
             if (($user -ne $null) ) 
             {
-                $user = $user.ToString().Replace("NSZBRN\","")
+                #poznamename si informaci o uzivateli
+                $user = $user.ToString().Replace($domain,"")
                 if ($user.ToString().Length -eq 0) { $user = "-----" }
             }
 
+            #do vysledku zapiseme zjistene veci o spustenem PC
             $results[$i] = @($name,$true,$user)
         }
         else
         { 
+            #pocitac neodpovida, zapiseme do vysledku jako neaktivni
             $results[$i] = @($name,$false,"")
         }
     }
+
+    #vratime vysledky
     return $results 
 }
 
 
+### Hlavni telo scriptu
 
 #nekonecny cyklus
 while ($true)
