@@ -32,7 +32,7 @@ $command = "$pathToWinSCP  /script=$sendfile_path"
 $wait_secs = 120
 
 #===== nazev domeny, ktery se ma odstranit z prihlaseneho uzivatele
-#===== napr. z NSZBRN\mfrnka se odstrani NSZBRN\
+#===== napr. z DOMAIN\mfrnka se odstrani DOMAIN\
 #===== nutno upravit v tele scriptBlock, na radku 244
 
 #konfigurace casovani HTML stranek
@@ -241,7 +241,7 @@ $scriptblock = {
                 $user = "-----" 
             }
 
-            $user = $user -replace 'NSZBRN\\',''
+            $user = $user -replace 'DOMAIN\\',''
             #do vysledku zapiseme zjistene veci o spustenem PC
             $results[$i] = @($name,$true,$user)
         }
