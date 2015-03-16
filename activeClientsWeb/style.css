@@ -1,54 +1,61 @@
 /* CSS Document pro formatovani tabulky s vysledky */
+
+/* barva textu u spustenych PC a prihlasenych uzivatelu */
 #active,#pc-on {
   color:#0b0;
   
 }
 
+/* barva textu vypnutych PC a casovych udaju */
 #passive,#pc-off,#time, #timeGenerated {
   color:#779FC0;
 }
 
+/* barva pozadi */
 body {
 background: #333333;
 }
 
+/* text zahlavi tabulky */
 th {
   color:#aaf;
   text-align: left;
 }
 
+/* pozadi pro sude radky tabulky */
 #even-row {
   background:#151515;
 }
 
+/* pozadi pro liche radky tabulky */
 #odd-row {
   background:#101020;
 }
 
+/* barva vypisu celkoveho poctu PC */
 #pc-total {
 color:white;
 }
 
-
+/* barvy vypisu poctu prihlasenych uzivatelu */
 #users {
 color:yellow;
 }
 
+/* barva textu pukud cas od vygenerovani prekroci definovanou kritickou mez */
 #timeElapsedProblem {
 color:red;
 font-size:200%;
 }
 
+/* barva textu pukud cas od vygenerovani prekroci definovanou varovnou mez */
 #timeElapsedWarning {
 color:yellow;
 font-size:150%;
 }
 
+/* barva textu casu od vygenerovani */
 #timeElapsedOK {
 color:green;
 font-size:140%;
 }
-
-
-
-
