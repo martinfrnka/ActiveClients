@@ -7,7 +7,7 @@
 #
 #    Autor: Martin Frnka (martin.frnka@gmail.com)
 #    verze: 1.0
-#    Datum: 16.30.2015
+#    Datum: 16.3.2015
 #===================================================================
 
 
@@ -46,7 +46,7 @@ $wait_secs = 120
 
 #===== nazev domeny, ktery se ma odstranit z prihlaseneho uzivatele
 #===== napr. z DOMAIN\mfrnka se odstrani DOMAIN\
-#===== nutno upravit v tele scriptBlock, na radku 244
+#===== nutno upravit v tele scriptBlock, na radku 257
 
 #konfigurace casovani HTML stranek
 #automaticky refresh html stranky v prohlizeci

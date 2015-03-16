@@ -1,4 +1,12 @@
-/* CSS Document pro formatovani tabulky s vysledky */
+/* 
+#============== style.css ==========================================
+#  CSS styl pro vygenerovanou html stranku ze skriptu ActiveClients
+#
+#    Autor: Martin Frnka (martin.frnka@gmail.com)
+#    verze: 1.0
+#    Datum: 16.3.2015
+#===================================================================
+*/
 
 /* barva textu u spustenych PC a prihlasenych uzivatelu */
 #active,#pc-on {

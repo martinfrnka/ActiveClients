@@ -1,3 +1,11 @@
+#============== sendfile.txt =======================================
+#  Skript pro upload html souboru na zvoleny server pomoci winSCP
+#
+#    Autor: Martin Frnka (martin.frnka@gmail.com)
+#    verze: 1.0
+#    Datum: 16.3.2015
+#===================================================================
+
 # Automatically abort script on errors
 option batch abort
 
