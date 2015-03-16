@@ -5,7 +5,7 @@
 #    - zjisti pres WMI prihlaseneho uzivate
 #    - vygeneruje HTML vystup
 #
-#    Autor: Martin Frnka
+#    Autor: Martin Frnka (martin.frnka@gmail.com)
 #    verze: 1.0
 #    Datum: 16.30.2015
 #===================================================================
