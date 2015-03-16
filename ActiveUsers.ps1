@@ -1,13 +1,41 @@
 ﻿#Globalni konfiguracni parametry
 
+#automaticke zjisteni adresare, ze ktereho byl skript spusten
+$script_working_directory = (Split-Path -Path $MyInvocation.MyCommand.Definition -Parent)
+
 #pocet paralelne probihajicich jobu pro otestovani pocitacu pingem a zjisteni uzivatele pres WMI
 #20 jobu pro cca 150 PC, probehne za cca 50s
+#mozno zvysit v zavislosti na poctu testovanych PC, aby byl vykon optimalni
 $batchCnt = 20
 
-#nazev domeny, ktery se ma odstranit z prihlaseneho uzivatele
-#napr. z NSZBRN\mfrnka se odstrani NSZBRN\
-    #nutno upravit v tele scriptBlock, na radku 201
+#cesta, kam budou generovany html stranky s vysledky
+#standartne podadresar activeClientsWeb v adresari s timto skriptem
+$pathToWriteHTML = "$script_working_directory\activeClientsWeb"
 
+
+#prikaz pro odeslani vysledneho html souboru (napr. na server zabbix)
+#provedeno pomoci winSCP, ten musi byt na stroji nainstalovan
+#slouzi pouze jako priklad, mozno resit jinym zpusobem
+
+#cesta k winSCP.com, pro spravnou funkcnost uploadu je nutne mit nainstalovano winSCP
+# na konci skriptu odkomentovat prikaz pro upload: iex $command 
+$pathToWinSCP = "C:\pracovni\winscp\WinSCP.com"
+
+#cesta ke konfiguracnimu souboru pripojeni (sendfile.txt)
+$sendfile_path = "$script_working_directory\sendfile.txt"
+
+#prikaz pro upload souboru na remote server
+#parametry prenosu 
+$command = "$pathToWinSCP  /script=$sendfile_path"
+
+#casova prodleva v sekundach mezi obnovou zjistovanych dat, default 120s
+$wait_secs = 120
+
+#===== nazev domeny, ktery se ma odstranit z prihlaseneho uzivatele
+#===== napr. z NSZBRN\mfrnka se odstrani NSZBRN\
+#===== nutno upravit v tele scriptBlock, na radku 204
+
+#============== pomocne funkce ==================================
 #pomocna funkce pro barevny vypis na konzoli
 function Write-Host-Color([String]$Text, [ConsoleColor]$Color) {
     Write-Host $Text -Foreground $Color -NoNewLine
@@ -16,6 +44,8 @@ function Write-Host-Color([String]$Text, [ConsoleColor]$Color) {
 #alias pro vyse uvedenou funkci
 Set-Alias whc Write-Host-Color
 
+
+#============== funkce pro generovani HTML kodu =================
 #funkce pro generovani html kodu podle zjistenych dat
 # vstupni parametry"
 # filename - cesta a jmeno vystupniho html souboru
@@ -134,6 +164,7 @@ function Export-Html-Data($filename, $columns) {
 
 }
 
+#============== scriptblock, definuje kod provadeny jednotlivymi joby =================================
 #scriptblock obsahuje skript, ktery je spousten v ramci jednotlivych jobu
 #Vstupni parametr $computerNames obsahuje seznam pocitacu k otestovani
 #Provadi nasledujici:
@@ -214,8 +245,10 @@ $scriptblock = {
 }
 
 
-### Hlavni telo scriptu
 
+#============== Hlavni telo scriptu ==================================
+
+#skript bezi stale, po zjisteni udaju pocka zvolenou casovou prodlevu a pak testuje vse znovu
 #nekonecny cyklus
 while ($true)
 {
@@ -314,21 +347,24 @@ while ($true)
     whc "Cas zpracovani: $stop " gray
     Write-Host ""
     
-    #Export-Html-Data "E:\Temp\ActiveUsers4.html" 4;
-    #Export-Html-Data "E:\Temp\ActiveUsers5.html" 5;
-    Export-Html-Data "E:\Temp\ActiveUsers6.html" 6;
-    #Export-Html-Data "E:\Temp\ActiveUsers7.html" 7;
-    #Export-Html-Data "E:\Temp\ActiveUsers8.html" 8;
-
-    $command = "C:\pracovni\winscp\WinSCP.com /script=C:\pracovni\winscp\sendfile.txt"
+    #vygenerovani dat do html - ve verzich 1 - 10 sloupcu
+    for ($i=1;$i -le 10;$i++)
+    {
+        Export-Html-Data "$pathToWriteHTML\ActiveClients$i.html" $i;
+    }
+    
+    #provedeni uploadu html souboru na remote server
+    #odkomentovat, pokud je pozadovan upload
     #iex $command
 
     Write-Host "`n"
     Write-Host "                <                    >`r" -NoNewline
-    Write-Host "pauza 2 minuty  <" -NoNewline
+    Write-Host "pauza $wait_secs sekund  <" -NoNewline
+    $secs = [Int32]$wait_secs/20
     for ($i = 0; $i -lt 20; $i++)
     { 
-        Start-Sleep -s 6
+        
+        Start-Sleep -s $secs
         Write-Host "*" -NoNewline
         
     }
