@@ -1,4 +1,17 @@
-﻿#Globalni konfiguracni parametry
+﻿#============== ActiveClients.ps1 ==================================
+#  Skript pro zjistovani stavu pocitacu v domene.
+#    - vezme seznam PC z Active Directory
+#    - overi jejich dostupnost pomoci Test-Connection
+#    - zjisti pres WMI prihlaseneho uzivate
+#    - vygeneruje HTML vystup
+#
+#    Autor: Martin Frnka
+#    verze: 1.0
+#    Datum: 16.30.2015
+#===================================================================
+
+
+#Globalni konfiguracni parametry
 
 #automaticke zjisteni adresare, ze ktereho byl skript spusten
 $script_working_directory = (Split-Path -Path $MyInvocation.MyCommand.Definition -Parent)
