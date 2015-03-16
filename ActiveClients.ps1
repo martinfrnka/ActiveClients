@@ -33,7 +33,19 @@ $wait_secs = 120
 
 #===== nazev domeny, ktery se ma odstranit z prihlaseneho uzivatele
 #===== napr. z NSZBRN\mfrnka se odstrani NSZBRN\
-#===== nutno upravit v tele scriptBlock, na radku 204
+#===== nutno upravit v tele scriptBlock, na radku 244
+
+#konfigurace casovani HTML stranek
+#automaticky refresh html stranky v prohlizeci
+$html_page_refresh_secs = 45
+
+#mez pro varovani, pokud je vygenerovana sestava starsi nez
+$html_time_warning_secs = 120
+
+#kriticka mez pro varovani, pokud je vygenerovana sestava starsi nez
+$html_time_critical_secs = 600
+
+
 
 #============== pomocne funkce ==================================
 #pomocna funkce pro barevny vypis na konzoli
@@ -58,7 +70,7 @@ function Export-Html-Data($filename, $columns) {
     $fstream.Write("
 <html>
     <head>
-     <meta http-equiv=`"refresh`" content=`"45`">
+     <meta http-equiv=`"refresh`" content=`"$html_page_refresh_secs`">
         <link rel= `"stylesheet`" type=`"text/css`" href=`"style.css`">        
     </head>
     <body>
@@ -146,9 +158,9 @@ function Export-Html-Data($filename, $columns) {
    
     var t_now = new Date();
     var t_diff = Math.round((t_now.getTime() - t_generated.getTime())/1000);
-    if (t_diff > 600) {
+    if (t_diff > $html_time_critical_secs) {
     document.getElementById(`"writeHere`").innerHTML = `"<span id=timeElapsedProblem>`" + t_diff.toString() + `" sekund.</span>`";
-    } else if (t_diff > 120){
+    } else if (t_diff > $html_time_warning_secs){
     document.getElementById(`"writeHere`").innerHTML = `"<span id=timeElapsedWarning>`" + t_diff.toString() + `" sekund.</span>`";
     } else {
     document.getElementById(`"writeHere`").innerHTML = `"<span id=timeElapsedOK>`" + t_diff.toString() + `" sekund.</span>`";
