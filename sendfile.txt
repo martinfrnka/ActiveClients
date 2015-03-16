@@ -1,0 +1,21 @@
+# Automatically abort script on errors
+option batch abort
+
+# Disable overwrite confirmations that conflict with the previous
+option confirm off
+
+# Connect to remote server - sftp://user:password@ip_address -hostkey="ssh-rsa 2048 RSA-KEY"
+# replace RSA-KEY with your key number in format 00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:00
+open sftp://user:password@ip_address -hostkey="ssh-rsa 2048 RSA-KEY"
+
+# Change remote directory - destination folder
+cd /var/www/html/activeusers
+
+# Upload the file to remote folder
+put SOURCE_PATH_TO_HTML_FILES\*
+
+# Disconnect
+close
+
+# Exit WinSCP
+exit
