@@ -42,7 +42,7 @@ function Export-Html-Data($filename, $columns) {
     $fstream.WriteLine("</tr>");
 
     #kolik bude mit tabulka radku?
-    $tbl_rows = [Math]::Ceiling($computer.Count / $columns);
+    $tbl_rows = [Math]::Ceiling($computerState.Count / $columns);
 
     #cyklus pro zapis vsech radku tabulky
     for ($i = 0; $i -lt $tbl_rows; $i++) {
@@ -65,7 +65,7 @@ function Export-Html-Data($filename, $columns) {
             $idx = $i + $tbl_rows*$c;
             
             #pokud jsme se octli mimo seznam, bunka bude prazdna        
-            if ($idx -ge $computer.Count) {
+            if ($idx -ge $computerState.Count) {
                 $fstream.WriteLine("<td></td><td></td>");
                 continue;
             }
@@ -78,7 +78,7 @@ function Export-Html-Data($filename, $columns) {
             }
             
             #vygenerovani html dat pro aktualni bunku
-            $fstream.WriteLine("<td$isActive>"+$computer[$idx].ToString()+"</td><td$isActive>"+$computerState[$idx][2].ToString()+"</td>");
+            $fstream.WriteLine("<td$isActive>"+$computerState[$idx][0].ToString()+"</td><td$isActive>"+$computerState[$idx][2].ToString()+"</td>");
 
         }
         #ukonceni radku
@@ -282,11 +282,6 @@ while ($true)
 
     for ($idx=0; $idx -lt $computerState.Count; $idx++)
     {
-        #TODO: zacisteni username stringu - je nutne?
-        if ($computerState[$idx][2] -eq $null) {
-            $computerState[$idx][2] = "null";
-        }
-
         #pocitadla uzivatelu, a spustenych PC
         if ($computerState[$idx][1] -eq $true)
         {
@@ -319,11 +314,11 @@ while ($true)
     whc "Cas zpracovani: $stop " gray
     Write-Host ""
     
-    Export-Html-Data "E:\Temp\ActiveUsers4.html" 4;
-    Export-Html-Data "E:\Temp\ActiveUsers5.html" 5;
-    Export-Html-Data "E:\Temp\ActiveUsers.html" 6;
-    Export-Html-Data "E:\Temp\ActiveUsers7.html" 7;
-    Export-Html-Data "E:\Temp\ActiveUsers8.html" 8;
+    #Export-Html-Data "E:\Temp\ActiveUsers4.html" 4;
+    #Export-Html-Data "E:\Temp\ActiveUsers5.html" 5;
+    Export-Html-Data "E:\Temp\ActiveUsers6.html" 6;
+    #Export-Html-Data "E:\Temp\ActiveUsers7.html" 7;
+    #Export-Html-Data "E:\Temp\ActiveUsers8.html" 8;
 
     $command = "C:\pracovni\winscp\WinSCP.com /script=C:\pracovni\winscp\sendfile.txt"
     #iex $command
